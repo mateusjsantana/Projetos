@@ -1,0 +1,290 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNiUfCh1nU/lCDaQQ+Jz5p/",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/mateusjsantana/Projetos/blob/main/Etl_com_chat_gpt\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 18,
+      "metadata": {
+        "id": "2DLxLfXmhHd5"
+      },
+      "outputs": [],
+      "source": [
+        "import pandas as pd"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df = pd.read_json('https://fakerapi.it/api/v1/users?_quantity=5')"
+      ],
+      "metadata": {
+        "id": "3_sv8DnIiLPx"
+      },
+      "execution_count": 112,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "id = df"
+      ],
+      "metadata": {
+        "id": "U3O7QeIqistW"
+      },
+      "execution_count": 114,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import requests\n",
+        "import json\n",
+        "\n",
+        "def get_user(id):\n",
+        "    response = requests.get('https://fakerapi.it/api/v1/users?_quantity=5')\n",
+        "    return response.json()['data']\n",
+        "\n",
+        "users = get_user(id)\n",
+        "\n",
+        "firstnames = [user['firstname'] for user in users]\n",
+        "\n",
+        "print(json.dumps(firstnames, indent=2))\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "XOBX-C2FkIqD",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "cc3d64da-0379-4dd1-cdd4-fdf3c6d5b985"
+      },
+      "execution_count": 115,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[\n",
+            "  \"Jennyfer\",\n",
+            "  \"Isaac\",\n",
+            "  \"Roel\",\n",
+            "  \"Marcos\",\n",
+            "  \"Mackenzie\"\n",
+            "]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import openai\n",
+        "openai_api_key = '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'\n",
+        "openai.api_key = openai_api_key"
+      ],
+      "metadata": {
+        "id": "RCT-isJJq2sq"
+      },
+      "execution_count": 86,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def generate_ai_news(firstname):\n",
+        "    completion = openai.ChatCompletion.create(\n",
+        "        model=\"gpt-3.5-turbo\",\n",
+        "        messages=[\n",
+        "            {\"role\": \"system\",\n",
+        "             \"content\": \"Você é um especialista em comunicação de ganhadores de sorteios.\"\n",
+        "            },\n",
+        "            {\"role\": \"user\",\n",
+        "             \"content\": f\"Crie emails com base nos dados de {firstname} dizendo que com base nas informações eles ganharam\"\n",
+        "            },\n",
+        "        ]\n",
+        "    )\n",
+        "    return completion.choices[0].message.content.strip('\\\"')\n",
+        "\n",
+        "for firstname in firstnames:\n",
+        "    news = generate_ai_news(firstname)\n",
+        "    print(news)\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "JJgjzHJKsOnX",
+        "outputId": "35add413-f122-48b0-abb5-7fd39dbb7254"
+      },
+      "execution_count": 116,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Prezado(a) Jennyfer,\n",
+            "\n",
+            "Parabéns! Temos o prazer de informar que você foi a sorteada(a) em nosso mais recente sorteio, com base nas informações fornecidas por você. \n",
+            "\n",
+            "Você acaba de conquistar um prêmio incrível, e estamos ansiosos para lhe dar todos os detalhes e facilitar a entrega do seu prêmio. \n",
+            "\n",
+            "Pedimos que entre em contato conosco o mais breve possível para confirmar seus dados de contato (endereço, número de telefone, etc.) e agendar a melhor forma de receber o seu prêmio.\n",
+            "\n",
+            "Aproveite essa conquista e fique atento(a) ao seu email, pois entraremos em contato muito em breve para dar continuidade ao processo e garantir que você receba o seu prêmio sem nenhuma dificuldade.\n",
+            "\n",
+            "Mais uma vez, parabéns por ser o(a) ganhador(a) do nosso sorteio! Estamos muito felizes por tornar esse momento especial para você.\n",
+            "\n",
+            "Atenciosamente,\n",
+            "A equipe do sorteio.\n",
+            "Assunto: Parabéns Isaac! Você é o grande vencedor!\n",
+            "\n",
+            "Caro Isaac,\n",
+            "\n",
+            "É com imensa satisfação que escrevemos para você hoje. Temos o prazer de informar que você é o grande vencedor de um de nossos sorteios recentes! Com base nas informações fornecidas por você, sua participação foi selecionada aleatoriamente e escolhida como a vencedora.\n",
+            "\n",
+            "Gostaríamos de parabenizá-lo pelo seu prêmio incrível! Como resultado do sorteio, você ganhou um(a) [insira o prêmio ganho] no valor de [insira o valor aproximado do prêmio]. Com certeza, esse prêmio será um belo presente para você!\n",
+            "\n",
+            "Para receber seu prêmio, pedimos gentilmente que entre em contato conosco o mais rápido possível. Em nossa equipe de atendimento ao cliente, temos especialistas prontos para orientar você em relação aos próximos passos, para que possamos organizar a entrega do seu prêmio de maneira segura e rápida.\n",
+            "\n",
+            "Por favor, entre em contato através do e-mail [insira o endereço de e-mail de contato] ou ligue para o número [insira o número de contato], mencionando o número de identificação do sorteio [insira o número de identificação do sorteio] para garantir que sua premiação seja devidamente validada.\n",
+            "\n",
+            "Mais uma vez, parabéns por sua vitória incrível! Esperamos ansiosamente pelo seu contato para encaminhar o seu prêmio e tornar essa ocasião especial ainda mais emocionante.\n",
+            "\n",
+            "Atenciosamente,\n",
+            "\n",
+            "[Seu nome]\n",
+            "[Empresa]\n",
+            "Caro(a) Roel,\n",
+            "\n",
+            "É com grande prazer que entramos em contato para informar que, com base nas informações fornecidas, você foi selecionado(a) como ganhador(a) de um sorteio incrível! Parabéns!\n",
+            "\n",
+            "Gostaríamos de destacar que sua participação nesse sorteio foi crucial e nos sentimos felizes em poder lhe presentear com essa maravilhosa oportunidade. Sem mais delongas, gostaríamos de revelar qual prêmio você conquistou.\n",
+            "\n",
+            "Após uma avaliação criteriosa, temos o prazer de anunciar que você ganhou uma viagem de uma semana para um destino exótico! Imagine-se explorando paisagens deslumbrantes, desfrutando de experiências culturais únicas e criando memórias inesquecíveis. Essa é a recompensa que você terá a chance de aproveitar!\n",
+            "\n",
+            "Para prosseguirmos com o processo de entrega do seu prêmio, solicitamos que entre em contato conosco o mais breve possível. Faremos o possível para acomodar suas preferências de viagem e garantir uma experiência perfeita.\n",
+            "\n",
+            "Mais uma vez, parabéns por ser selecionado(a) como ganhador(a)! Aguardamos ansiosamente o seu retorno para proporcionar todas as informações necessárias e tornar esse sonho realidade.\n",
+            "\n",
+            "Permanecemos à sua disposição para qualquer dúvida ou esclarecimento adicional. Aproveite ao máximo essa conquista e parabéns mais uma vez!\n",
+            "\n",
+            "Atenciosamente,\n",
+            "\n",
+            "[Seu nome]\n",
+            "[Empresa de sorteios]\n",
+            "[Seu contato]\n",
+            "Prezado Marcos,\n",
+            "\n",
+            "É com grande satisfação que entramos em contato para informar que, com base nas informações fornecidas por você, você foi escolhido como um dos ganhadores de nosso mais recente sorteio!\n",
+            "\n",
+            "Parabéns! Você foi selecionado entre milhares de participantes e terá a oportunidade de desfrutar do prêmio que foi destinado a você. Pedimos que confirme o seu endereço de entrega para que possamos enviar o seu prêmio o mais breve possível.\n",
+            "\n",
+            "Agradecemos imensamente pela sua participação e por ter compartilhado seus dados corretamente. O seu prêmio é um reconhecimento de sua fidelidade e confiança em nossa marca.\n",
+            "\n",
+            "Por favor, responda a este e-mail com as seguintes informações:\n",
+            "\n",
+            "Nome completo:\n",
+            "Endereço completo para entrega:\n",
+            "Número de telefone:\n",
+            "\n",
+            "Garantimos total privacidade e segurança no tratamento de suas informações. Assim, ressaltamos que seus dados só serão utilizados para enviar seu prêmio.\n",
+            "\n",
+            "Nosso prazo de envio é de até 15 dias úteis. Pedimos que aguarde pacientemente enquanto processamos sua entrega.\n",
+            "\n",
+            "Mais uma vez, parabéns por ser um dos nossos ganhadores e obrigado por escolher nossa marca!\n",
+            "\n",
+            "Caso tenha alguma dúvida, não hesite em entrar em contato conosco.\n",
+            "\n",
+            "Atenciosamente,\n",
+            "\n",
+            "Equipe de Comunicação de Ganhadores de Sorteios\n",
+            "Prezado(a) [Nome do ganhador],\n",
+            "\n",
+            "É com grande prazer que entramos em contato para informar que você foi selecionado(a) como ganhador(a) de um sorteio especial realizado pela [Nome da empresa/organização]. Parabéns!\n",
+            "\n",
+            "De acordo com as informações fornecidas durante sua participação, você demonstrou interesse em [descrever o prêmio], e temos o prazer de informar que foi escolhido(a) dentre milhares de participantes que se inscreveram para essa oportunidade única.\n",
+            "\n",
+            "Gostaríamos de reforçar o quanto valorizamos sua participação em nossos sorteios e agradecer pelo interesse em nosso produto/serviço. Nosso objetivo é sempre proporcionar alegria e satisfação aos nossos clientes, e sua seleção como ganhador(a) é um reflexo do nosso compromisso em oferecer experiências incríveis.\n",
+            "\n",
+            "Em relação ao prêmio, detalhamos abaixo as informações importantes:\n",
+            "\n",
+            "Prêmio: [Descreva o prêmio de forma clara e objetiva]\n",
+            "Data de retirada/entrega: [Informe a data e o horário disponíveis para que o ganhador possa receber o prêmio]\n",
+            "Local: [Indique o local, seja uma loja física, centro de distribuição ou endereço para entrega]\n",
+            "\n",
+            "Para que possamos efetuar a entrega do prêmio, solicitamos que entre em contato com nossa equipe de suporte até [data limite] para confirmar seus dados pessoais (nome completo, endereço, documento de identificação) e agendar a retirada do prêmio. Caso não cumpra esse prazo, infelizmente será necessário selecionar um novo ganhador.\n",
+            "\n",
+            "Para facilitar o processo, nossa equipe de atendimento está disponível para auxiliá-lo(a) e tirar quaisquer dúvidas que possam surgir. Sinta-se à vontade para entrar em contato através do telefone [inserir número] ou pelo e-mail [inserir endereço de e-mail].\n",
+            "\n",
+            "Mais uma vez, parabéns! Esperamos que desfrute do prêmio e tenha uma experiência incrível com nossa empresa. Agradecemos novamente por escolher nossa marca e por fazer parte de nossas promoções.\n",
+            "\n",
+            "Atenciosamente,\n",
+            "[Seu nome]\n",
+            "[Empresa/Organização]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def update_user(user):\n",
+        "  response = requests.put('https://fakerapi.it/api/v1/users?_quantity=5', json=user)\n",
+        "  return True if response.status_code == 200 else False\n",
+        "\n",
+        "for user in users:\n",
+        "    success = update_user(user)\n",
+        "    print(f\"User:{user['firstname']} update? {success}\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "2KXSWaaNA-rY",
+        "outputId": "f3fb8942-089e-4e94-9513-b6c1d1cf24bc"
+      },
+      "execution_count": 121,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "User:Jennyfer update? False\n",
+            "User:Isaac update? False\n",
+            "User:Roel update? False\n",
+            "User:Marcos update? False\n",
+            "User:Mackenzie update? False\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
